@@ -1,19 +1,12 @@
-import os
-import uvicorn
 from fastapi import FastAPI
+from pydantic import BaseModel
+import requests
 
 app = FastAPI()
 
-@app.get("/")
-def root():
-    return {
-        "status": "Running",
-        "service": "AI Video Backend"
-    }
+class VideoReq(BaseModel):
+    file_url: str
 
-if name == "main":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080))
-    )
+@app.get("/")
+def home():
+    return {"status": "ok"}
