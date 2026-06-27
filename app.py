@@ -1,34 +1,31 @@
-import os
-import uvicorn
 from fastapi import FastAPI
+from pydantic import BaseModel
+import requests
 
 app = FastAPI()
 
+class VideoReq(BaseModel):
+    file_url: str
+
 @app.get("/")
-def root():
-    return {
-        "status": "Running",
-        "service": "AI Video Backend"
-    }
+def home():
+    return {"status": "ok"}
 
-if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080))
-    )
-    @app.post("/process-video")
+@app.post("/process-video")
 def process_video(req: VideoReq):
-    file_url = req.file_url
+    try:
+        r = requests.get(req.file_url)
 
-    r = requests.get(file_url)
-    if r.status_code != 200:
-        return {"error": "download failed"}
+        if r.status_code != 200:
+            return {"error": "download failed"}
 
-    with open("video.mp4", "wb") as f:
-        f.write(r.content)
+        with open("video.mp4", "wb") as f:
+            f.write(r.content)
 
-    return {
-        "status": "success",
-        "file_url": file_url
-    }
+        return {
+            "status": "success",
+            "message": "video received"
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
